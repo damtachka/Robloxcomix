@@ -158,43 +158,64 @@
     </div>
 
     <!-- Кнопки -->
-    <button class="btn yellow btn-icon" onclick="showComicEditor()">
+    <button class="btn yellow btn-icon" onclick="toggleSection('editor')">
       СОЗДАТЬ КОМИКС
     </button>
-    <button class="btn blue">МОИ КОМИКСЫ</button>
-    <button class="btn red">ПОПУЛЯРНЫЕ</button>
-    <button class="btn green btn-icon">
+    <button class="btn blue" onclick="toggleSection('myComics')">МОИ КОМИКСЫ</button>
+    <button class="btn red" onclick="toggleSection('popularComics')">ПОПУЛЯРНЫЕ</button>
+    <button class="btn green btn-icon" onclick="toggleSection('earnRobux')">
       <img src="https://cdn-icons-png.flaticon.com/512/625/625685.png" alt="r$" />
       ЗАРАБОТАТЬ ROBUX
     </button>
-    <button class="btn purple btn-icon" onclick="showProfile()">
+    <button class="btn purple btn-icon" onclick="toggleSection('profile')">
       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="profile" />
       ПРОФИЛЬ
     </button>
 
     <!-- Профиль -->
-    <div class="avatar">
-      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
-    </div>
-
-    <div id="profile-info" class="profile-info">
-      <p>Заработано: 100 Robux</p>
-      <button class="btn green">Вывести</button>
+    <div id="profile" class="section">
+      <div class="avatar">
+        <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
+      </div>
+      <div class="profile-info">
+        <p>Заработано: 100 Robux</p>
+        <button class="btn green">Вывести</button>
+      </div>
     </div>
 
     <!-- Редактор Комиксов -->
-    <div id="editor" class="editor" style="display:none;">
+    <div id="editor" class="editor section" style="display:none;">
       <h3>Редактор Комиксов</h3>
       <canvas id="comic-canvas" width="400" height="300"></canvas>
       <div class="toolbar">
-        <button onclick="drawRect()">Рисовать Прямоугольник</button>
+        <button onclick="setBrush('rect')">Прямоугольник</button>
+        <button onclick="setBrush('line')">Линия</button>
+        <button onclick="setBrush('text')">Текст</button>
         <button onclick="clearCanvas()">Очистить</button>
         <button onclick="saveComic()">Сохранить</button>
       </div>
     </div>
 
+    <!-- Моё Сохранённое -->
+    <div id="myComics" class="section" style="display:none;">
+      <h3>Мои Комиксы</h3>
+      <p>Здесь будут все ваши сохранённые комиксы.</p>
+    </div>
+
+    <!-- Популярные Комиксы -->
+    <div id="popularComics" class="section" style="display:none;">
+      <h3>Популярные Комиксы</h3>
+      <p>Здесь отображаются самые популярные комиксы.</p>
+    </div>
+
+    <!-- Заработать Robux -->
+    <div id="earnRobux" class="section" style="display:none;">
+      <h3>Заработать Robux</h3>
+      <button class="btn green">Получить Robux</button>
+    </div>
+
     <!-- Редактирование профиля -->
-    <div id="profile-edit" class="profile-edit" style="display:none;">
+    <div id="profile-edit" class="profile-edit section" style="display:none;">
       <input type="text" placeholder="Новое имя" id="new-name">
       <input type="file" id="avatar-upload">
       <textarea placeholder="Описание" id="profile-description"></textarea>
@@ -207,6 +228,7 @@
     let canvas = document.getElementById('comic-canvas');
     let ctx = canvas.getContext('2d');
     let isDrawing = false;
+    let brushType = 'line';
 
     // Слушаем события для рисования на сенсорных экранах
     canvas.addEventListener('touchstart', startDrawing);
@@ -225,8 +247,19 @@
 
     function draw(event) {
       if (!isDrawing) return;
-      ctx.lineTo(getMousePos(event).x, getMousePos(event).y);
-      ctx.stroke();
+
+      if (brushType === 'line') {
+        ctx.lineTo(getMousePos(event).x, getMousePos(event).y);
+        ctx.stroke();
+      } else if (brushType === 'rect') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#3498db";
+        ctx.fillRect(getMousePos(event).x, getMousePos(event).y, 100, 50);
+      } else if (brushType === 'text') {
+        ctx.font = '20px Arial';
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillText('Hello!', getMousePos(event).x, getMousePos(event).y);
+      }
     }
 
     function stopDrawing() {
@@ -240,27 +273,17 @@
       return { x: x - rect.left, y: y - rect.top };
     }
 
-    function showProfile() {
-      document.getElementById('profile-info').style.display = 'none';
-      document.getElementById('profile-edit').style.display = 'block';
+    // Функции для переключения секций
+    function toggleSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
     }
 
-    function saveProfile() {
-      let newName = document.getElementById('new-name').value;
-      let profileDescription = document.getElementById('profile-description').value;
-
-      alert('Профиль обновлен! Имя: ' + newName + ', Описание: ' + profileDescription);
-      document.getElementById('profile-info').style.display = 'block';
-      document.getElementById('profile-edit').style.display = 'none';
-    }
-
-    function showComicEditor() {
-      document.getElementById('editor').style.display = 'block';
-    }
-
-    function drawRect() {
-      ctx.fillStyle = "#3498db";
-      ctx.fillRect(50, 50, 150, 100);
+    function setBrush(type) {
+      brushType = type;
     }
 
     function clearCanvas() {
@@ -270,6 +293,12 @@
     function saveComic() {
       currentComic.push(canvas.toDataURL());
       alert("Комикс сохранен!");
+    }
+
+    function saveProfile() {
+      let newName = document.getElementById('new-name').value;
+      let profileDescription = document.getElementById('profile-description').value;
+      alert('Профиль обновлен! Имя: ' + newName + ', Описание: ' + profileDescription);
     }
   </script>
 </body>
