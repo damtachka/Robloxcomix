@@ -1,9 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Comics</title>
   <style>
     body {
@@ -85,13 +83,55 @@
       border: 3px solid #fff;
     }
 
-    .section {
-      text-align: left;
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
+    .profile-info {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .profile-edit input {
+      margin-top: 10px;
+      padding: 8px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .profile-edit button {
+      padding: 10px 20px;
+      background-color: #f1c40f;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Comic Editor Style */
+    .editor {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px #222;
       margin-top: 20px;
     }
+
+    .editor canvas {
+      border: 1px solid #000;
+      background-color: #fff;
+    }
+
+    .editor .toolbar {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+
+    .editor .toolbar button {
+      padding: 10px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+    }
+
   </style>
 </head>
 <body>
@@ -100,81 +140,88 @@
       ROBLOX<br><span>COMICS</span>
     </div>
 
-    <button class="btn yellow btn-icon" onclick="createComic()">
-      <img src="https://cdn-icons-png.flaticon.com/512/3515/3515301.png" alt="icon" />
+    <!-- Комикс кнопки -->
+    <button class="btn yellow btn-icon" onclick="showComicEditor()">
       СОЗДАТЬ КОМИКС
     </button>
-
-    <button class="btn blue" onclick="viewMyComics()">МОИ КОМИКСЫ</button>
-    <button class="btn red" onclick="viewPopular()">ПОПУЛЯРНЫЕ</button>
-    <button class="btn green btn-icon" onclick="earnRobux()">
+    <button class="btn blue">МОИ КОМИКСЫ</button>
+    <button class="btn red">ПОПУЛЯРНЫЕ</button>
+    <button class="btn green btn-icon">
       <img src="https://cdn-icons-png.flaticon.com/512/625/625685.png" alt="r$" />
       ЗАРАБОТАТЬ ROBUX
     </button>
-    <button class="btn purple btn-icon" onclick="viewProfile()">
+    <button class="btn purple btn-icon" onclick="showProfile()">
       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="profile" />
       ПРОФИЛЬ
     </button>
 
+    <!-- Профиль -->
     <div class="avatar">
       <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
     </div>
 
-    <div class="section" id="output"></div>
+    <div id="profile-info" class="profile-info">
+      <p>Заработано: 100 Robux</p>
+      <button class="btn green">Вывести</button>
+    </div>
+
+    <!-- Редактор Комиксов -->
+    <div id="editor" class="editor" style="display:none;">
+      <h3>Редактор Комиксов</h3>
+      <canvas id="comic-canvas" width="400" height="300"></canvas>
+      <div class="toolbar">
+        <button onclick="drawRect()">Рисовать Прямоугольник</button>
+        <button onclick="clearCanvas()">Очистить</button>
+        <button onclick="saveComic()">Сохранить</button>
+      </div>
+    </div>
+
+    <!-- Редактирование профиля -->
+    <div id="profile-edit" class="profile-edit" style="display:none;">
+      <input type="text" placeholder="Новое имя" id="new-name">
+      <input type="file" id="avatar-upload">
+      <textarea placeholder="Описание" id="profile-description"></textarea>
+      <button onclick="saveProfile()">Сохранить</button>
+    </div>
   </div>
 
   <script>
-    // Загрузка комиксов из localStorage
-    function loadComics() {
-      return JSON.parse(localStorage.getItem("myComics") || "[]");
+    let currentComic = [];
+    let canvas = document.getElementById('comic-canvas');
+    let ctx = canvas.getContext('2d');
+
+    function showProfile() {
+      document.getElementById('profile-info').style.display = 'none';
+      document.getElementById('profile-edit').style.display = 'block';
     }
 
-    function saveComics(comics) {
-      localStorage.setItem("myComics", JSON.stringify(comics));
+    function saveProfile() {
+      let newName = document.getElementById('new-name').value;
+      let profileDescription = document.getElementById('profile-description').value;
+
+      alert('Профиль обновлен! Имя: ' + newName + ', Описание: ' + profileDescription);
+      document.getElementById('profile-info').style.display = 'block';
+      document.getElementById('profile-edit').style.display = 'none';
     }
 
-    function createComic() {
-      const newComic = prompt("Введите название нового комикса:");
-      if (newComic && newComic.trim().length > 0) {
-        const comics = loadComics();
-        comics.push({ title: newComic.trim(), date: new Date().toLocaleString() });
-        saveComics(comics);
-        alert("Комикс успешно создан!");
-      }
+    function showComicEditor() {
+      document.getElementById('editor').style.display = 'block';
     }
 
-    function viewMyComics() {
-      const comics = loadComics();
-      const output = document.getElementById("output");
-      if (comics.length === 0) {
-        output.innerHTML = "<p>У тебя пока нет комиксов.</p>";
-        return;
-      }
-      let html = "<h3>Мои комиксы:</h3><ul>";
-      comics.forEach((c, i) => {
-        html += `<li><b>${i + 1}. ${c.title}</b> — ${c.date}</li>`;
-      });
-      html += "</ul>";
-      output.innerHTML = html;
+    function drawRect() {
+      ctx.fillStyle = "#3498db";
+      ctx.fillRect(50, 50, 150, 100);
     }
 
-    function viewPopular() {
-      document.getElementById("output").innerHTML = "<p>Популярные комиксы появятся здесь скоро!</p>";
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function earnRobux() {
-      document.getElementById("output").innerHTML = "<p>Зарабатывай Robux за лайки, просмотры и репосты! Функция скоро появится.</p>";
-    }
-
-    function viewProfile() {
-      const comics = loadComics();
-      const robuxEarned = comics.length * 2; // пример
-      document.getElementById("output").innerHTML = `
-        <h3>Твой профиль:</h3>
-        <p>Комиксов создано: <b>${comics.length}</b></p>
-        <p>Robux заработано: <b>${robuxEarned}</b> R$</p>
-        <p>Ник: <b>Комиксер007</b></p>
-      `;
+    function saveComic() {
+      let comicData = canvas.toDataURL();
+      currentComic.push(comicData);
+      alert('Комикс сохранен!');
+      clearCanvas();
     }
   </script>
 </body>
