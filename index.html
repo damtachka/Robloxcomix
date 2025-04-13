@@ -106,54 +106,69 @@
       cursor: pointer;
     }
 
-    /* Модальное окно */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+    /* Лента Комиксов */
+    .feed-tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
     }
 
-    .modal-content {
+    .tab {
+      padding: 10px;
+      cursor: pointer;
+      border: 1px solid #fff;
+      border-radius: 10px;
+    }
+
+    .tab.active {
+      background: #f1c40f;
+      color: #111;
+    }
+
+    .comic-preview {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .comic-thumbnail {
+      width: 100px;
+      height: 100px;
+      background-color: #eee;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .options-menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .editor {
       background-color: #fff;
       padding: 20px;
       border-radius: 15px;
-      max-width: 800px;
+      box-shadow: 0 5px #222;
+      margin-top: 20px;
+    }
+
+    .editor canvas {
+      border: 1px solid #000;
+      background-color: #fff;
       width: 100%;
-      position: relative;
     }
 
-    .modal canvas {
-      width: 100%;
-      height: auto;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #e74c3c;
-      color: #fff;
-      font-size: 18px;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 50%;
-    }
-
-    .toolbar {
+    .editor .toolbar {
       display: flex;
       justify-content: space-around;
       margin-top: 10px;
     }
 
-    .toolbar button {
+    .editor .toolbar button {
       padding: 10px;
       background-color: #3498db;
       border: none;
@@ -161,29 +176,19 @@
       color: #fff;
     }
 
-    /* Уведомление о подтверждении */
-    .confirm-popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      z-index: 1001;
-    }
+    /* Media Queries for Mobile */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
 
-    .confirm-popup button {
-      margin: 10px;
-      padding: 10px 20px;
-      background-color: #3498db;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
+      .title {
+        font-size: 24px;
+      }
+
+      .btn {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -194,17 +199,26 @@
     </div>
 
     <!-- Кнопки -->
-    <button class="btn yellow btn-icon" onclick="openEditor()">СОЗДАТЬ КОМИКС</button>
-    <button class="btn blue" onclick="toggleSection('myComics')">МОИ КОМИКСЫ</button>
-    <button class="btn red" onclick="toggleSection('popularComics')">ПОПУЛЯРНЫЕ</button>
-    <button class="btn green btn-icon" onclick="toggleSection('earnRobux')">
-      <img src="https://cdn-icons-png.flaticon.com/512/625/625685.png" alt="r$" />
-      ЗАРАБОТАТЬ ROBUX
+    <button class="btn yellow btn-icon" onclick="toggleSection('editor')">
+      СОЗДАТЬ КОМИКС
     </button>
-    <button class="btn purple btn-icon" onclick="toggleSection('profile')">
+    <button class="btn blue" onclick="toggleSection('feed')">ЛЕНТА КОМИКСОВ</button>
+    <button class="btn green btn-icon" onclick="toggleSection('profile')">
       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="profile" />
       ПРОФИЛЬ
     </button>
+
+    <!-- Лента Комиксов -->
+    <div id="feed" class="section" style="display:none;">
+      <div class="feed-tabs">
+        <div class="tab active" onclick="showTab('popular')">Популярные</div>
+        <div class="tab" onclick="showTab('main')">Главная</div>
+      </div>
+      <input type="text" id="search" placeholder="Поиск по авторам, названиям..." />
+      <div id="feed-content">
+        <!-- Здесь будут отображаться комиксы -->
+      </div>
+    </div>
 
     <!-- Профиль -->
     <div id="profile" class="section">
@@ -217,29 +231,17 @@
       </div>
     </div>
 
-    <!-- Редактор Комиксов (модальное окно) -->
-    <div id="editor-modal" class="modal">
-      <div class="modal-content">
-        <button class="close-btn" onclick="closeEditor()">X</button>
-        <h3>Редактор Комиксов</h3>
-        <canvas id="comic-canvas" width="800" height="600"></canvas>
-        <div class="toolbar">
-          <button onclick="setBrush('line')">Линия</button>
-          <button onclick="setBrush('rect')">Прямоугольник</button>
-          <button onclick="setBrush('circle')">Круг</button>
-          <button onclick="setBrush('text')">Текст</button>
-          <button onclick="clearCanvas()">Очистить</button>
-          <button onclick="saveComic()">Сохранить</button>
-        </div>
+    <!-- Редактор Комиксов -->
+    <div id="editor" class="editor section" style="display:none;">
+      <h3>Редактор Комиксов</h3>
+      <canvas id="comic-canvas" width="400" height="300"></canvas>
+      <div class="toolbar">
+        <button onclick="setBrush('rect')">Прямоугольник</button>
+        <button onclick="setBrush('line')">Линия</button>
+        <button onclick="setBrush('text')">Текст</button>
+        <button onclick="clearCanvas()">Очистить</button>
+        <button onclick="saveComic()">Сохранить</button>
       </div>
-    </div>
-
-    <!-- Уведомление подтверждения -->
-    <div id="confirm-popup" class="confirm-popup">
-      <p>Вы точно хотите закрыть свою работу без сохранений?</p>
-      <button onclick="closeEditor(true)">Закрыть</button>
-      <button onclick="saveComic()">Сохранить</button>
-      <button onclick="cancelClose()">Отмена</button>
     </div>
   </div>
 
@@ -249,56 +251,36 @@
     let ctx = canvas.getContext('2d');
     let isDrawing = false;
     let brushType = 'line';
-    let startX, startY;
 
-    function openEditor() {
-      document.getElementById('editor-modal').style.display = 'flex';
-    }
+    // Слушаем события для рисования
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
 
-    function closeEditor(forceClose = false) {
-      if (forceClose || confirmClose()) {
-        document.getElementById('editor-modal').style.display = 'none';
-      }
-    }
-
-    function confirmClose() {
-      document.getElementById('confirm-popup').style.display = 'block';
-      return false;
-    }
-
-    function cancelClose() {
-      document.getElementById('confirm-popup').style.display = 'none';
-    }
-
-    // Функции рисования
     function startDrawing(event) {
       isDrawing = true;
-      let pos = getMousePos(event);
-      startX = pos.x;
-      startY = pos.y;
       ctx.beginPath();
-      ctx.moveTo(startX, startY);
+      ctx.moveTo(getMousePos(event).x, getMousePos(event).y);
     }
 
     function draw(event) {
       if (!isDrawing) return;
-      let pos = getMousePos(event);
+
       if (brushType === 'line') {
-        ctx.lineTo(pos.x, pos.y);
+        ctx.lineTo(getMousePos(event).x, getMousePos(event).y);
         ctx.stroke();
       } else if (brushType === 'rect') {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#3498db";
-        ctx.fillRect(startX, startY, pos.x - startX, pos.y - startY);
-      } else if (brushType === 'circle') {
-        ctx.beginPath();
-        ctx.arc(startX, startY, Math.abs(pos.x - startX), 0, 2 * Math.PI);
-        ctx.fillStyle = "#3498db";
-        ctx.fill();
+        ctx.fillRect(getMousePos(event).x, getMousePos(event).y, 100, 50);
       } else if (brushType === 'text') {
         ctx.font = '20px Arial';
         ctx.fillStyle = '#e74c3c';
-        ctx.fillText('Hello!', pos.x, pos.y);
+        ctx.fillText('Hello!', getMousePos(event).x, getMousePos(event).y);
       }
     }
 
@@ -313,6 +295,15 @@
       return { x: x - rect.left, y: y - rect.top };
     }
 
+    // Функции для переключения секций
+    function toggleSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
     function setBrush(type) {
       brushType = type;
     }
@@ -324,8 +315,12 @@
     function saveComic() {
       currentComic.push(canvas.toDataURL());
       alert("Комикс сохранен!");
-      document.getElementById('confirm-popup').style.display = 'none';
-      closeEditor(true);
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`#feed .tab:nth-child(${tab === 'popular' ? 1 : 2})`).classList.add('active');
+      document.getElementById('feed-content').innerHTML = `<p>Здесь будут ${tab === 'popular' ? 'популярные' : 'все'} комиксы</p>`;
     }
   </script>
 </body>
