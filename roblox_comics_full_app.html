@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Comics</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial Black', sans-serif;
+      background: #3498db url('https://i.ibb.co/1zXNkzt/bg-pixels.png') repeat;
+      color: #fff;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .title {
+      background: #fff;
+      color: #e74c3c;
+      font-size: 32px;
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 5px #222;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .title span {
+      display: block;
+      color: #f1c40f;
+      font-size: 28px;
+      margin-top: 5px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      font-size: 22px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 5px #222;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px #111;
+    }
+
+    .yellow { background: #f1c40f; color: #111; }
+    .blue { background: #3498db; }
+    .red { background: #e74c3c; }
+    .green { background: #2ecc71; }
+    .purple { background: #9b59b6; }
+
+    .btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-icon img {
+      height: 24px;
+    }
+
+    .avatar {
+      margin-top: 15px;
+    }
+
+    .avatar img {
+      width: 60px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+    }
+
+    .section {
+      text-align: left;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      ROBLOX<br><span>COMICS</span>
+    </div>
+
+    <button class="btn yellow btn-icon" onclick="createComic()">
+      <img src="https://cdn-icons-png.flaticon.com/512/3515/3515301.png" alt="icon" />
+      СОЗДАТЬ КОМИКС
+    </button>
+
+    <button class="btn blue" onclick="viewMyComics()">МОИ КОМИКСЫ</button>
+    <button class="btn red" onclick="viewPopular()">ПОПУЛЯРНЫЕ</button>
+    <button class="btn green btn-icon" onclick="earnRobux()">
+      <img src="https://cdn-icons-png.flaticon.com/512/625/625685.png" alt="r$" />
+      ЗАРАБОТАТЬ ROBUX
+    </button>
+    <button class="btn purple btn-icon" onclick="viewProfile()">
+      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="profile" />
+      ПРОФИЛЬ
+    </button>
+
+    <div class="avatar">
+      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
+    </div>
+
+    <div class="section" id="output"></div>
+  </div>
+
+  <script>
+    // Загрузка комиксов из localStorage
+    function loadComics() {
+      return JSON.parse(localStorage.getItem("myComics") || "[]");
+    }
+
+    function saveComics(comics) {
+      localStorage.setItem("myComics", JSON.stringify(comics));
+    }
+
+    function createComic() {
+      const newComic = prompt("Введите название нового комикса:");
+      if (newComic && newComic.trim().length > 0) {
+        const comics = loadComics();
+        comics.push({ title: newComic.trim(), date: new Date().toLocaleString() });
+        saveComics(comics);
+        alert("Комикс успешно создан!");
+      }
+    }
+
+    function viewMyComics() {
+      const comics = loadComics();
+      const output = document.getElementById("output");
+      if (comics.length === 0) {
+        output.innerHTML = "<p>У тебя пока нет комиксов.</p>";
+        return;
+      }
+      let html = "<h3>Мои комиксы:</h3><ul>";
+      comics.forEach((c, i) => {
+        html += `<li><b>${i + 1}. ${c.title}</b> — ${c.date}</li>`;
+      });
+      html += "</ul>";
+      output.innerHTML = html;
+    }
+
+    function viewPopular() {
+      document.getElementById("output").innerHTML = "<p>Популярные комиксы появятся здесь скоро!</p>";
+    }
+
+    function earnRobux() {
+      document.getElementById("output").innerHTML = "<p>Зарабатывай Robux за лайки, просмотры и репосты! Функция скоро появится.</p>";
+    }
+
+    function viewProfile() {
+      const comics = loadComics();
+      const robuxEarned = comics.length * 2; // пример
+      document.getElementById("output").innerHTML = `
+        <h3>Твой профиль:</h3>
+        <p>Комиксов создано: <b>${comics.length}</b></p>
+        <p>Robux заработано: <b>${robuxEarned}</b> R$</p>
+        <p>Ник: <b>Комиксер007</b></p>
+      `;
+    }
+  </script>
+</body>
+</html>
