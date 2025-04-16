@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Comics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RBXGAME</title>
   <style>
     body {
       margin: 0;
@@ -12,13 +12,11 @@
       color: #fff;
       text-align: center;
     }
-
     .container {
       max-width: 480px;
       margin: auto;
       padding: 20px;
     }
-
     .title {
       background: #fff;
       color: #e74c3c;
@@ -27,300 +25,172 @@
       border-radius: 15px;
       box-shadow: 0 5px #222;
       margin-bottom: 30px;
-      position: relative;
     }
-
     .title span {
       display: block;
       color: #f1c40f;
-      font-size: 28px;
-      margin-top: 5px;
+      font-size: 24px;
     }
-
     .btn {
       display: block;
       width: 100%;
-      padding: 18px;
-      font-size: 22px;
-      margin: 15px 0;
+      padding: 16px;
+      font-size: 20px;
+      margin: 10px 0;
       border: none;
       border-radius: 12px;
       box-shadow: 0 5px #222;
       cursor: pointer;
-      transition: transform 0.1s ease;
       color: #fff;
       font-weight: bold;
+      transition: transform 0.1s ease;
     }
-
     .btn:active {
       transform: translateY(3px);
       box-shadow: 0 2px #111;
     }
-
     .yellow { background: #f1c40f; color: #111; }
     .blue { background: #3498db; }
     .red { background: #e74c3c; }
     .green { background: #2ecc71; }
     .purple { background: #9b59b6; }
-
-    .btn-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .btn-icon img {
-      height: 24px;
-    }
-
-    .avatar {
-      margin-top: 15px;
-    }
-
-    .avatar img {
-      width: 60px;
-      border-radius: 50%;
-      border: 3px solid #fff;
-    }
-
-    .profile-info {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-
-    .profile-edit input,
-    .profile-edit textarea {
-      margin-top: 10px;
-      padding: 8px;
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    .profile-edit button {
-      padding: 10px 20px;
-      background-color: #f1c40f;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    /* Лента Комиксов */
-    .feed-tabs {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 20px;
-    }
-
-    .tab {
-      padding: 10px;
-      cursor: pointer;
-      border: 1px solid #fff;
-      border-radius: 10px;
-    }
-
-    .tab.active {
-      background: #f1c40f;
-      color: #111;
-    }
-
-    .comic-preview {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .comic-thumbnail {
-      width: 100px;
-      height: 100px;
-      background-color: #eee;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .options-menu {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .editor {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 5px #222;
-      margin-top: 20px;
-    }
-
-    .editor canvas {
-      border: 1px solid #000;
-      background-color: #fff;
-      width: 100%;
-    }
-
-    .editor .toolbar {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-    }
-
-    .editor .toolbar button {
-      padding: 10px;
-      background-color: #3498db;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-    }
-
-    /* Media Queries for Mobile */
-    @media (max-width: 768px) {
-      .container {
-        padding: 10px;
-      }
-
-      .title {
-        font-size: 24px;
-      }
-
-      .btn {
-        font-size: 18px;
-      }
-    }
+    .section { display: none; margin-top: 20px; }
+    .active-section { display: block; }
+    .profile-info, .game-area { margin-top: 20px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title">
-      ROBLOX<br><span>COMICS</span>
+      RBXGAME<br><span>Мини-Игры</span>
     </div>
 
-    <!-- Кнопки -->
-    <button class="btn yellow btn-icon" onclick="toggleSection('editor')">
-      СОЗДАТЬ КОМИКС
-    </button>
-    <button class="btn blue" onclick="toggleSection('feed')">ЛЕНТА КОМИКСОВ</button>
-    <button class="btn green btn-icon" onclick="toggleSection('profile')">
-      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="profile" />
-      ПРОФИЛЬ
-    </button>
+    <div id="balance-display">Баланс: <span id="robux-balance">0</span> Robux</div>
 
-    <!-- Лента Комиксов -->
-    <div id="feed" class="section" style="display:none;">
-      <div class="feed-tabs">
-        <div class="tab active" onclick="showTab('popular')">Популярные</div>
-        <div class="tab" onclick="showTab('main')">Главная</div>
-      </div>
-      <input type="text" id="search" placeholder="Поиск по авторам, названиям..." />
-      <div id="feed-content">
-        <!-- Здесь будут отображаться комиксы -->
-      </div>
+    <button class="btn yellow" onclick="toggleSection('games')">Играть с Ботом</button>
+    <button class="btn green" onclick="toggleSection('profile')">Профиль</button>
+
+    <!-- Игры -->
+    <div id="games" class="section">
+      <h3>Выбери игру</h3>
+      <button class="btn red" onclick="selectGame('rps')">Камень-Ножницы-Бумага</button>
+      <button class="btn purple" onclick="selectGame('guess')">Угадай число</button>
+      <button class="btn blue" onclick="selectGame('reaction')">Реакция</button>
     </div>
 
     <!-- Профиль -->
-    <div id="profile" class="section">
-      <div class="avatar">
-        <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
-      </div>
-      <div class="profile-info">
-        <p>Заработано: 100 Robux</p>
-        <button class="btn green">Вывести</button>
-      </div>
+    <div id="profile" class="section profile-info">
+      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" width="80" style="border-radius: 50%; border: 3px solid #fff;" />
+      <p>Текущий баланс: <span id="profile-balance">0</span> Robux</p>
+      <button class="btn green" onclick="alert('Вывод недоступен в демо.')">Вывести</button>
     </div>
 
-    <!-- Редактор Комиксов -->
-    <div id="editor" class="editor section" style="display:none;">
-      <h3>Редактор Комиксов</h3>
-      <canvas id="comic-canvas" width="400" height="300"></canvas>
-      <div class="toolbar">
-        <button onclick="setBrush('rect')">Прямоугольник</button>
-        <button onclick="setBrush('line')">Линия</button>
-        <button onclick="setBrush('text')">Текст</button>
-        <button onclick="clearCanvas()">Очистить</button>
-        <button onclick="saveComic()">Сохранить</button>
-      </div>
-    </div>
+    <!-- Игровая зона -->
+    <div id="game-area" class="section game-area"></div>
   </div>
 
   <script>
-    let currentComic = [];
-    let canvas = document.getElementById('comic-canvas');
-    let ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    let brushType = 'line';
+    let robux = parseFloat(localStorage.getItem('robux') || 0);
+    updateBalance();
 
-    // Слушаем события для рисования
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('touchmove', draw);
-    canvas.addEventListener('touchend', stopDrawing);
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
-
-    function startDrawing(event) {
-      isDrawing = true;
-      ctx.beginPath();
-      ctx.moveTo(getMousePos(event).x, getMousePos(event).y);
+    function toggleSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      updateBalance();
     }
 
-    function draw(event) {
-      if (!isDrawing) return;
+    function updateBalance() {
+      document.getElementById('robux-balance').innerText = robux.toFixed(1);
+      document.getElementById('profile-balance').innerText = robux.toFixed(1);
+    }
 
-      if (brushType === 'line') {
-        ctx.lineTo(getMousePos(event).x, getMousePos(event).y);
-        ctx.stroke();
-      } else if (brushType === 'rect') {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#3498db";
-        ctx.fillRect(getMousePos(event).x, getMousePos(event).y, 100, 50);
-      } else if (brushType === 'text') {
-        ctx.font = '20px Arial';
-        ctx.fillStyle = '#e74c3c';
-        ctx.fillText('Hello!', getMousePos(event).x, getMousePos(event).y);
+    function selectGame(game) {
+      const gameArea = document.getElementById('game-area');
+      toggleSection('game-area');
+      let html = `<h3>Сложность</h3>
+        <button class="btn green" onclick="startGame('${game}', 'easy')">Легко (0.1)</button>
+        <button class="btn yellow" onclick="startGame('${game}', 'medium')">Средне (0.3)</button>
+        <button class="btn red" onclick="startGame('${game}', 'hard')">Сложно (0.5)</button>`;
+      gameArea.innerHTML = html;
+    }
+
+    function startGame(game, difficulty) {
+      const gameArea = document.getElementById('game-area');
+      if (game === 'rps') startRPS(difficulty, gameArea);
+      if (game === 'guess') startGuess(difficulty, gameArea);
+      if (game === 'reaction') startReaction(difficulty, gameArea);
+    }
+
+    // Камень-Ножницы-Бумага
+    function startRPS(difficulty, area) {
+      area.innerHTML = `<h3>Выбери:</h3>
+        <button class="btn blue" onclick="playRPS('Камень', '${difficulty}')">Камень</button>
+        <button class="btn yellow" onclick="playRPS('Ножницы', '${difficulty}')">Ножницы</button>
+        <button class="btn red" onclick="playRPS('Бумага', '${difficulty}')">Бумага</button>`;
+    }
+
+    function playRPS(userChoice, difficulty) {
+      const choices = ['Камень', 'Ножницы', 'Бумага'];
+      let botChoice = choices[Math.floor(Math.random() * 3)];
+      let result = '';
+
+      if (userChoice === botChoice) result = 'Ничья!';
+      else if (
+        (userChoice === 'Камень' && botChoice === 'Ножницы') ||
+        (userChoice === 'Ножницы' && botChoice === 'Бумага') ||
+        (userChoice === 'Бумага' && botChoice === 'Камень')
+      ) result = 'Победа!';
+      else result = 'Поражение!';
+
+      showResult(result, difficulty);
+    }
+
+    // Угадай число
+    function startGuess(difficulty, area) {
+      const max = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 5 : 7;
+      const number = Math.floor(Math.random() * max) + 1;
+      area.innerHTML = `<h3>Угадай число от 1 до ${max}</h3>
+        <input type="number" id="guess-input" min="1" max="${max}" />
+        <button class="btn green" onclick="checkGuess(${number}, '${difficulty}')">Проверить</button>`;
+    }
+
+    function checkGuess(correct, difficulty) {
+      const guess = parseInt(document.getElementById('guess-input').value);
+      const result = guess === correct ? 'Победа!' : `Поражение! Было число ${correct}`;
+      showResult(result, difficulty, guess === correct);
+    }
+
+    // Реакция
+    function startReaction(difficulty, area) {
+      area.innerHTML = `<h3>Нажми как только увидишь кнопку!</h3>
+        <p id="reaction-message">Жди...</p>`;
+      setTimeout(() => {
+        const start = Date.now();
+        document.getElementById('reaction-message').innerHTML = `<button class="btn red" onclick="finishReaction(${start}, '${difficulty}')">ЖМИ!</button>`;
+      }, Math.random() * 3000 + 2000);
+    }
+
+    function finishReaction(startTime, difficulty) {
+      const time = Date.now() - startTime;
+      const success = difficulty === 'easy' ? time < 1500 :
+                      difficulty === 'medium' ? time < 1000 :
+                      time < 700;
+      const result = success ? `Победа! Время реакции: ${time} мс` : `Поражение! Время: ${time} мс`;
+      showResult(result, difficulty, success);
+    }
+
+    // Результат и начисление
+    function showResult(message, difficulty, won = null) {
+      let reward = difficulty === 'easy' ? 0.1 : difficulty === 'medium' ? 0.3 : 0.5;
+      if (won === null) won = message.includes('Победа');
+      if (won) {
+        robux += reward;
+        localStorage.setItem('robux', robux.toFixed(1));
+        alert(`${message} +${reward} Robux`);
+      } else {
+        alert(message);
       }
-    }
-
-    function stopDrawing() {
-      isDrawing = false;
-    }
-
-    function getMousePos(event) {
-      let rect = canvas.getBoundingClientRect();
-      let x = event.touches ? event.touches[0].clientX : event.clientX;
-      let y = event.touches ? event.touches[0].clientY : event.clientY;
-      return { x: x - rect.left, y: y - rect.top };
-    }
-
-    // Функции для переключения секций
-    function toggleSection(sectionId) {
-      const sections = document.querySelectorAll('.section');
-      sections.forEach(section => {
-        section.style.display = 'none';
-      });
-      document.getElementById(sectionId).style.display = 'block';
-    }
-
-    function setBrush(type) {
-      brushType = type;
-    }
-
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function saveComic() {
-      currentComic.push(canvas.toDataURL());
-      alert("Комикс сохранен!");
-    }
-
-    function showTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`#feed .tab:nth-child(${tab === 'popular' ? 1 : 2})`).classList.add('active');
-      document.getElementById('feed-content').innerHTML = `<p>Здесь будут ${tab === 'popular' ? 'популярные' : 'все'} комиксы</p>`;
+      toggleSection('games');
     }
   </script>
 </body>
