@@ -11,7 +11,13 @@
       background: #3498db url('https://i.ibb.co/1zXNkzt/bg-pixels.png') repeat;
       color: #fff;
       text-align: center;
+      animation: fadeIn 1s ease-out;
     }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
     .container {
       max-width: 480px;
       margin: auto;
@@ -57,6 +63,25 @@
     .section { display: none; margin-top: 20px; }
     .active-section { display: block; }
     .profile-info, .game-area { margin-top: 20px; }
+    .history {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .history-item {
+      padding: 10px;
+      background: #333;
+      margin-bottom: 5px;
+      border-radius: 8px;
+    }
+    .avatar {
+      border-radius: 50%;
+      border: 3px solid #fff;
+      width: 60px;
+    }
+    .nickname {
+      font-weight: bold;
+      color: #f1c40f;
+    }
   </style>
 </head>
 <body>
@@ -67,8 +92,14 @@
 
     <div id="balance-display">Баланс: <span id="robux-balance">0</span> Robux</div>
 
+    <div id="profile-header">
+      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" class="avatar" alt="avatar" />
+      <p id="nickname">Игрок</p>
+    </div>
+
     <button class="btn yellow" onclick="toggleSection('games')">Играть с Ботом</button>
     <button class="btn green" onclick="toggleSection('profile')">Профиль</button>
+    <button class="btn blue" onclick="toggleSection('history')">История Игры</button>
 
     <!-- Игры -->
     <div id="games" class="section">
@@ -80,9 +111,15 @@
 
     <!-- Профиль -->
     <div id="profile" class="section profile-info">
-      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" width="80" style="border-radius: 50%; border: 3px solid #fff;" />
+      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" class="avatar" alt="avatar" />
       <p>Текущий баланс: <span id="profile-balance">0</span> Robux</p>
       <button class="btn green" onclick="alert('Вывод недоступен в демо.')">Вывести</button>
+    </div>
+
+    <!-- История Игры -->
+    <div id="history" class="section history">
+      <h3>История Игры</h3>
+      <div id="game-history"></div>
     </div>
 
     <!-- Игровая зона -->
@@ -91,7 +128,14 @@
 
   <script>
     let robux = parseFloat(localStorage.getItem('robux') || 0);
+    let nickname = localStorage.getItem('nickname') || 'Игрок';
+    let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
     updateBalance();
+
+    // Установим ник и аватарку
+    document.getElementById('nickname').innerText = nickname;
+    document.getElementById('profile-balance').innerText = robux.toFixed(1);
+    document.getElementById('robux-balance').innerText = robux.toFixed(1);
 
     function toggleSection(id) {
       document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
@@ -102,6 +146,18 @@
     function updateBalance() {
       document.getElementById('robux-balance').innerText = robux.toFixed(1);
       document.getElementById('profile-balance').innerText = robux.toFixed(1);
+    }
+
+    // История игр
+    function updateHistory() {
+      const historyContainer = document.getElementById('game-history');
+      historyContainer.innerHTML = '';
+      gameHistory.forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        historyItem.innerHTML = `${item.date}: ${item.game} - ${item.result}`;
+        historyContainer.appendChild(historyItem);
+      });
     }
 
     function selectGame(game) {
@@ -186,11 +242,21 @@
       if (won) {
         robux += reward;
         localStorage.setItem('robux', robux.toFixed(1));
+        gameHistory.push({
+          game: message.includes('Камень-Ножницы-Бумага') ? 'Камень-Ножницы-Бумага' : message.includes('Угадай число') ? 'Угадай число' : 'Реакция',
+          result: message,
+          date: new Date().toLocaleString()
+        });
+        localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
         alert(`${message} +${reward} Robux`);
       } else {
         alert(message);
       }
-      toggleSection('games');
+
+      updateHistory();
+      setTimeout(() => {
+        toggleSection('games');
+      }, 3000);
     }
   </script>
 </body>
