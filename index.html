@@ -1,263 +1,244 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RBXGAME</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Arial Black', sans-serif;
-      background: #3498db url('https://i.ibb.co/1zXNkzt/bg-pixels.png') repeat;
+      font-family: 'Arial', sans-serif;
+      background: #3498db;
       color: #fff;
       text-align: center;
-      animation: fadeIn 1s ease-out;
+      transition: all 0.3s ease;
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-
+    
     .container {
       max-width: 480px;
       margin: auto;
       padding: 20px;
     }
+    
     .title {
       background: #fff;
       color: #e74c3c;
       font-size: 32px;
       padding: 15px;
       border-radius: 15px;
-      box-shadow: 0 5px #222;
       margin-bottom: 30px;
     }
-    .title span {
-      display: block;
-      color: #f1c40f;
-      font-size: 24px;
-    }
+
     .btn {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      font-size: 20px;
-      margin: 10px 0;
+      background: #f1c40f;
+      padding: 15px 25px;
       border: none;
       border-radius: 12px;
-      box-shadow: 0 5px #222;
       cursor: pointer;
-      color: #fff;
-      font-weight: bold;
+      font-size: 18px;
+      margin-top: 10px;
       transition: transform 0.1s ease;
     }
+
     .btn:active {
-      transform: translateY(3px);
-      box-shadow: 0 2px #111;
+      transform: translateY(2px);
     }
-    .yellow { background: #f1c40f; color: #111; }
-    .blue { background: #3498db; }
-    .red { background: #e74c3c; }
-    .green { background: #2ecc71; }
-    .purple { background: #9b59b6; }
-    .section { display: none; margin-top: 20px; }
-    .active-section { display: block; }
-    .profile-info, .game-area { margin-top: 20px; }
-    .history {
+
+    .profile {
       margin-top: 20px;
-      text-align: left;
+      font-size: 18px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .history-item {
+
+    #leaderboard {
+      margin-top: 20px;
+    }
+
+    #leaderboard ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #leaderboard li {
+      margin: 5px 0;
+      background: #eee;
       padding: 10px;
-      background: #333;
+      border-radius: 10px;
+    }
+
+    .achievements {
+      margin-top: 20px;
+    }
+
+    .achievements ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .achievements li {
+      background: #fff;
+      padding: 10px;
       margin-bottom: 5px;
       border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    .avatar {
-      border-radius: 50%;
-      border: 3px solid #fff;
-      width: 60px;
+
+    .seasons {
+      margin-top: 30px;
     }
-    .nickname {
-      font-weight: bold;
-      color: #f1c40f;
+
+    .seasons h3 {
+      margin-bottom: 10px;
     }
+
+    .season {
+      margin: 5px 0;
+      background: #e74c3c;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .season:hover {
+      background: #c0392b;
+    }
+
+    .timer {
+      font-size: 20px;
+      color: #e74c3c;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title">
-      RBXGAME<br><span>Мини-Игры</span>
+      RBXGAME
     </div>
 
-    <div id="balance-display">Баланс: <span id="robux-balance">0</span> Robux</div>
+    <button class="btn" id="play-btn">Играть</button>
 
-    <div id="profile-header">
-      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" class="avatar" alt="avatar" />
-      <p id="nickname">Игрок</p>
+    <div id="profile" class="profile">
+      <p>Ник: <span id="player-nickname">Игрок</span></p>
+      <p>Баланс: <span id="player-robux">0</span> Robux</p>
+      <button class="btn" onclick="buyRobux()">Купить Robux</button>
     </div>
 
-    <button class="btn yellow" onclick="toggleSection('games')">Играть с Ботом</button>
-    <button class="btn green" onclick="toggleSection('profile')">Профиль</button>
-    <button class="btn blue" onclick="toggleSection('history')">История Игры</button>
-
-    <!-- Игры -->
-    <div id="games" class="section">
-      <h3>Выбери игру</h3>
-      <button class="btn red" onclick="selectGame('rps')">Камень-Ножницы-Бумага</button>
-      <button class="btn purple" onclick="selectGame('guess')">Угадай число</button>
-      <button class="btn blue" onclick="selectGame('reaction')">Реакция</button>
+    <!-- Таблица лидеров -->
+    <div id="leaderboard">
+      <h3>Таблица лидеров</h3>
+      <ul id="leaderboard-list">
+        <!-- Лидеры будут добавляться сюда -->
+      </ul>
     </div>
 
-    <!-- Профиль -->
-    <div id="profile" class="section profile-info">
-      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" class="avatar" alt="avatar" />
-      <p>Текущий баланс: <span id="profile-balance">0</span> Robux</p>
-      <button class="btn green" onclick="alert('Вывод недоступен в демо.')">Вывести</button>
+    <!-- Достижения игрока -->
+    <div class="achievements">
+      <h3>Достижения</h3>
+      <ul id="achievement-list">
+        <!-- Достижения будут отображаться здесь -->
+      </ul>
     </div>
 
-    <!-- История Игры -->
-    <div id="history" class="section history">
-      <h3>История Игры</h3>
-      <div id="game-history"></div>
+    <!-- Сезонные события -->
+    <div class="seasons">
+      <h3>Сезонные события</h3>
+      <div class="season" onclick="selectSeason('Новогодний')">Новогодний Сезон</div>
+      <div class="season" onclick="selectSeason('Летний')">Летний Сезон</div>
     </div>
 
-    <!-- Игровая зона -->
-    <div id="game-area" class="section game-area"></div>
+    <!-- Таймер -->
+    <div id="timer" class="timer" style="display:none;">
+      <p>Подготовка к следующей игре: <span id="time-remaining">3</span> секунд</p>
+    </div>
   </div>
 
   <script>
-    let robux = parseFloat(localStorage.getItem('robux') || 0);
-    let nickname = localStorage.getItem('nickname') || 'Игрок';
-    let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
-    updateBalance();
+    // Стартовые данные
+    let playerName = "Игрок";
+    let robuxBalance = 0;
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+    let gameTimer;
+    
+    // Обновление данных
+    document.getElementById('player-nickname').textContent = playerName;
+    document.getElementById('player-robux').textContent = robuxBalance;
 
-    // Установим ник и аватарку
-    document.getElementById('nickname').innerText = nickname;
-    document.getElementById('profile-balance').innerText = robux.toFixed(1);
-    document.getElementById('robux-balance').innerText = robux.toFixed(1);
-
-    function toggleSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-      document.getElementById(id).style.display = 'block';
-      updateBalance();
-    }
-
-    function updateBalance() {
-      document.getElementById('robux-balance').innerText = robux.toFixed(1);
-      document.getElementById('profile-balance').innerText = robux.toFixed(1);
-    }
-
-    // История игр
-    function updateHistory() {
-      const historyContainer = document.getElementById('game-history');
-      historyContainer.innerHTML = '';
-      gameHistory.forEach(item => {
-        const historyItem = document.createElement('div');
-        historyItem.classList.add('history-item');
-        historyItem.innerHTML = `${item.date}: ${item.game} - ${item.result}`;
-        historyContainer.appendChild(historyItem);
+    // Функция для обновления таблицы лидеров
+    function updateLeaderboard() {
+      const leaderboardList = document.getElementById('leaderboard-list');
+      leaderboardList.innerHTML = '';
+      leaderboard.forEach(player => {
+        leaderboardList.innerHTML += `<li>${player.nickname}: ${player.robux} Robux</li>`;
       });
     }
 
-    function selectGame(game) {
-      const gameArea = document.getElementById('game-area');
-      toggleSection('game-area');
-      let html = `<h3>Сложность</h3>
-        <button class="btn green" onclick="startGame('${game}', 'easy')">Легко (0.1)</button>
-        <button class="btn yellow" onclick="startGame('${game}', 'medium')">Средне (0.3)</button>
-        <button class="btn red" onclick="startGame('${game}', 'hard')">Сложно (0.5)</button>`;
-      gameArea.innerHTML = html;
+    // Функция для обновления достижений
+    function updateAchievements() {
+      const achievementList = document.getElementById('achievement-list');
+      achievementList.innerHTML = '';
+      achievements.forEach(achievement => {
+        achievementList.innerHTML += `<li>${achievement.title}: ${achievement.description} (Дата: ${achievement.date})</li>`;
+      });
     }
 
-    function startGame(game, difficulty) {
-      const gameArea = document.getElementById('game-area');
-      if (game === 'rps') startRPS(difficulty, gameArea);
-      if (game === 'guess') startGuess(difficulty, gameArea);
-      if (game === 'reaction') startReaction(difficulty, gameArea);
+    // Функция для добавления достижения
+    function addAchievement(title, description) {
+      achievements.push({ title, description, date: new Date().toLocaleString() });
+      localStorage.setItem('achievements', JSON.stringify(achievements));
+      updateAchievements();
     }
 
-    // Камень-Ножницы-Бумага
-    function startRPS(difficulty, area) {
-      area.innerHTML = `<h3>Выбери:</h3>
-        <button class="btn blue" onclick="playRPS('Камень', '${difficulty}')">Камень</button>
-        <button class="btn yellow" onclick="playRPS('Ножницы', '${difficulty}')">Ножницы</button>
-        <button class="btn red" onclick="playRPS('Бумага', '${difficulty}')">Бумага</button>`;
+    // Функция для начала игры
+    document.getElementById('play-btn').addEventListener('click', () => {
+      robuxBalance += 0.1; // Игрок получает 0.1 Robux за игру
+      localStorage.setItem('robuxBalance', robuxBalance);
+      updateLeaderboard(); // Обновить таблицу лидеров
+      startTimer(); // Запуск таймера на 3 секунды
+    });
+
+    // Таймер для ожидания следующей игры
+    function startTimer() {
+      let timeLeft = 3;
+      document.getElementById('timer').style.display = 'block';
+      const timeDisplay = document.getElementById('time-remaining');
+      timeDisplay.textContent = timeLeft;
+      
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(gameTimer);
+          document.getElementById('timer').style.display = 'none';
+        }
+      }, 1000);
     }
 
-    function playRPS(userChoice, difficulty) {
-      const choices = ['Камень', 'Ножницы', 'Бумага'];
-      let botChoice = choices[Math.floor(Math.random() * 3)];
-      let result = '';
-
-      if (userChoice === botChoice) result = 'Ничья!';
-      else if (
-        (userChoice === 'Камень' && botChoice === 'Ножницы') ||
-        (userChoice === 'Ножницы' && botChoice === 'Бумага') ||
-        (userChoice === 'Бумага' && botChoice === 'Камень')
-      ) result = 'Победа!';
-      else result = 'Поражение!';
-
-      showResult(result, difficulty);
-    }
-
-    // Угадай число
-    function startGuess(difficulty, area) {
-      const max = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 5 : 7;
-      const number = Math.floor(Math.random() * max) + 1;
-      area.innerHTML = `<h3>Угадай число от 1 до ${max}</h3>
-        <input type="number" id="guess-input" min="1" max="${max}" />
-        <button class="btn green" onclick="checkGuess(${number}, '${difficulty}')">Проверить</button>`;
-    }
-
-    function checkGuess(correct, difficulty) {
-      const guess = parseInt(document.getElementById('guess-input').value);
-      const result = guess === correct ? 'Победа!' : `Поражение! Было число ${correct}`;
-      showResult(result, difficulty, guess === correct);
-    }
-
-    // Реакция
-    function startReaction(difficulty, area) {
-      area.innerHTML = `<h3>Нажми как только увидишь кнопку!</h3>
-        <p id="reaction-message">Жди...</p>`;
-      setTimeout(() => {
-        const start = Date.now();
-        document.getElementById('reaction-message').innerHTML = `<button class="btn red" onclick="finishReaction(${start}, '${difficulty}')">ЖМИ!</button>`;
-      }, Math.random() * 3000 + 2000);
-    }
-
-    function finishReaction(startTime, difficulty) {
-      const time = Date.now() - startTime;
-      const success = difficulty === 'easy' ? time < 1500 :
-                      difficulty === 'medium' ? time < 1000 :
-                      time < 700;
-      const result = success ? `Победа! Время реакции: ${time} мс` : `Поражение! Время: ${time} мс`;
-      showResult(result, difficulty, success);
-    }
-
-    // Результат и начисление
-    function showResult(message, difficulty, won = null) {
-      let reward = difficulty === 'easy' ? 0.1 : difficulty === 'medium' ? 0.3 : 0.5;
-      if (won === null) won = message.includes('Победа');
-      if (won) {
-        robux += reward;
-        localStorage.setItem('robux', robux.toFixed(1));
-        gameHistory.push({
-          game: message.includes('Камень-Ножницы-Бумага') ? 'Камень-Ножницы-Бумага' : message.includes('Угадай число') ? 'Угадай число' : 'Реакция',
-          result: message,
-          date: new Date().toLocaleString()
-        });
-        localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
-        alert(`${message} +${reward} Robux`);
-      } else {
-        alert(message);
+    // Функция для покупки Robux
+    function buyRobux() {
+      const stars = prompt("Введите количество звезд для обмена на Robux (например, 25 звезд = 10 Robux):");
+      if (stars) {
+        const robux = (stars / 25) * 10;
+        robuxBalance += robux;
+        localStorage.setItem('robuxBalance', robuxBalance);
+        document.getElementById('player-robux').textContent = robuxBalance;
+        alert(`Вы получили ${robux} Robux за ${stars} звезд!`);
       }
-
-      updateHistory();
-      setTimeout(() => {
-        toggleSection('games');
-      }, 3000);
     }
+
+    // Сезонные события
+    function selectSeason(seasonName) {
+      alert(`Вы выбрали ${seasonName} сезон!`);
+    }
+
+    // Обновление таблицы лидеров
+    updateLeaderboard();
+    updateAchievements();
   </script>
 </body>
 </html>
