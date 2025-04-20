@@ -1,205 +1,49 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RBXGAME</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Arial Black', sans-serif;
-      background: #3498db url('https://i.ibb.co/1zXNkzt/bg-pixels.png') repeat;
-      color: #fff;
-      text-align: center;
-    }
+import asyncio
+import random
+import re
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils import executor
 
-    .container {
-      max-width: 480px;
-      margin: auto;
-      padding: 20px;
-    }
+API_TOKEN = '7692548269:AAHSPLfUJBB1r1JVm6D_vF-keshs_PwSTG0'
 
-    .title {
-      background: #fff;
-      color: #e74c3c;
-      font-size: 32px;
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-    }
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
 
-    .title span {
-      display: block;
-      color: #f1c40f;
-      font-size: 28px;
-      margin-top: 5px;
-    }
+# Генерация фейкового ключа
+def generate_key():
+    return f"{random.choice(['T12', 'Q89', 'X77'])}-KIHA{random.randint(10,99)}-{random.randint(10,99)}FALIV{random.randint(0,9)}-X"
 
-    .btn {
-      background: #f1c40f;
-      padding: 15px 25px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 18px;
-      margin-top: 10px;
-      transition: transform 0.1s ease;
-    }
+# Инлайн-клавиатура
+keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Выбрать ключ для игр", callback_data="choose_game")],
+    [InlineKeyboardButton(text="Сгенерировать ключ", callback_data="generate_key")]
+])
 
-    .btn:active {
-      transform: translateY(2px);
-    }
+@dp.message_handler(commands=['start'])
+async def send_welcome(message: types.Message):
+    loading_msg = await message.answer("Загрузка..")
+    await asyncio.sleep(2)
+    await loading_msg.edit_text("Бесплатные ключи от всех дверей в стим тут!", reply_markup=keyboard)
 
-    .profile {
-      margin-top: 20px;
-      font-size: 18px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 15px;
-    }
+@dp.callback_query_handler(lambda c: c.data == 'generate_key')
+async def handle_generate_key(callback_query: types.CallbackQuery):
+    key = generate_key()
+    await bot.send_message(callback_query.from_user.id, f"`{key}`", parse_mode="Markdown")
 
-    .avatar {
-      margin-top: 15px;
-    }
+@dp.callback_query_handler(lambda c: c.data == 'choose_game')
+async def handle_choose_game(callback_query: types.CallbackQuery):
+    msg = await bot.send_message(callback_query.from_user.id, "Бегу за командой…⛹️")
+    await asyncio.sleep(2)
+    await msg.edit_text("Напишите точное названия вашей игры, для которой хотите приобрести ключ 🔑")
 
-    .avatar img {
-      width: 60px;
-      border-radius: 50%;
-      border: 3px solid #fff;
-    }
+    @dp.message_handler()
+    async def get_game_name(message: types.Message):
+        if re.fullmatch(r'[A-Za-z0-9 ]+', message.text):
+            key = generate_key()
+            await message.answer(f"`{key}`", parse_mode="Markdown")
+        else:
+            await message.answer("Похоже, ты решил создать собственное название? Чтож… такого нету в стиме..")
 
-    .balance {
-      margin-top: 10px;
-    }
-
-    .history {
-      margin-top: 20px;
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .game {
-      margin-top: 30px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 5px #222;
-    }
-
-    .game button {
-      width: 100%;
-      padding: 15px;
-      font-size: 20px;
-      border-radius: 12px;
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: transform 0.1s ease;
-    }
-
-    .game button:active {
-      transform: translateY(3px);
-    }
-
-  </style>
-</head>
-<body>
-  <div class="container">
-    <!-- Title -->
-    <div class="title">
-      RBXGAME<br><span>Игры с Робуксами</span>
-    </div>
-
-    <!-- Profile -->
-    <div class="profile">
-      <div class="avatar">
-        <img src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png" alt="Аватарка" />
-      </div>
-      <h3>Ник: <span id="username">Игрок123</span></h3>
-      <div class="balance">
-        <p>Баланс: <strong id="robux-balance">10 Robux</strong></p>
-        <p>Telegram Stars: <strong id="telegram-stars">50 Stars</strong></p>
-      </div>
-
-      <button class="btn" onclick="buyRobux()">Купить Robux за Telegram Stars</button>
-    </div>
-
-    <!-- Game Selection -->
-    <div class="game">
-      <h3>Выберите игру</h3>
-      <button onclick="startGame('easy')">Легкая (0.1 Robux)</button>
-      <button onclick="startGame('medium')">Средняя (0.3 Robux)</button>
-      <button onclick="startGame('hard')">Сложная (0.5 Robux)</button>
-    </div>
-
-    <!-- Game History -->
-    <div class="history">
-      <h3>История игр</h3>
-      <ul id="game-history">
-        <!-- История игр будет отображаться здесь -->
-      </ul>
-    </div>
-  </div>
-
-  <script>
-    let robuxBalance = 10;
-    let telegramStars = 50;
-    let username = "Игрок123";
-    let gameHistory = [];
-
-    // Обновить баланс в интерфейсе
-    function updateBalance() {
-      document.getElementById("robux-balance").innerText = robuxBalance + " Robux";
-      document.getElementById("telegram-stars").innerText = telegramStars + " Stars";
-    }
-
-    // Купить Robux за Telegram Stars
-    function buyRobux() {
-      if (telegramStars >= 25) {
-        let starsToRobux = Math.floor(telegramStars / 25);
-        robuxBalance += starsToRobux * 10;
-        telegramStars -= starsToRobux * 25;
-        alert(`Вы купили ${starsToRobux * 10} Robux за ${starsToRobux * 25} Telegram Stars!`);
-        updateBalance();
-      } else {
-        alert("Недостаточно Telegram Stars для покупки Robux.");
-      }
-    }
-
-    // Старт игры
-    function startGame(difficulty) {
-      let reward = 0;
-      if (difficulty === 'easy') {
-        reward = 0.1;
-      } else if (difficulty === 'medium') {
-        reward = 0.3;
-      } else if (difficulty === 'hard') {
-        reward = 0.5;
-      }
-
-      robuxBalance += reward;
-      gameHistory.push(`Вы выиграли ${reward} Robux в игре ${difficulty} !`);
-      updateBalance();
-      displayGameHistory();
-      alert(`Вы выиграли ${reward} Robux в игре ${difficulty}!`);
-    }
-
-    // Отобразить историю игр
-    function displayGameHistory() {
-      let historyList = document.getElementById("game-history");
-      historyList.innerHTML = '';
-      gameHistory.forEach(item => {
-        let li = document.createElement("li");
-        li.innerText = item;
-        historyList.appendChild(li);
-      });
-    }
-
-    // Обновляем баланс при загрузке страницы
-    updateBalance();
-  </script>
-</body>
-</html>
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
