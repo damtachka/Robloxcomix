@@ -1,49 +1,109 @@
-import asyncio
-import random
-import re
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils import executor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оплата за аккаунт через Telegram Stars</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fb;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .select-container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .select-container select, .select-container input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .price {
+      font-size: 24px;
+      color: #333;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .button {
+      padding: 15px 25px;
+      background-color: #0088cc;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    .button:disabled {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Выбор аккаунта для создания</h1>
+  <div class="select-container">
+    <h3>Тип аккаунта:</h3>
+    <select id="account" onchange="updatePrice()">
+      <option value="50">Обычный аккаунт (50₽)</option>
+      <option value="100">Премиум аккаунт (100₽)</option>
+    </select>
 
-API_TOKEN = '7692548269:AAHSPLfUJBB1r1JVm6D_vF-keshs_PwSTG0'
+    <h3>Telegram Premium:</h3>
+    <input type="checkbox" id="premium" onclick="updatePrice()">
+    <label for="premium">Есть Telegram Premium</label>
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+    <div class="price">
+      <h2>Цена: <span id="price">50</span>₽</h2>
+    </div>
 
-# Генерация фейкового ключа
-def generate_key():
-    return f"{random.choice(['T12', 'Q89', 'X77'])}-KIHA{random.randint(10,99)}-{random.randint(10,99)}FALIV{random.randint(0,9)}-X"
+    <button class="button" id="payButton" onclick="pay()">Оплатить</button>
+  </div>
 
-# Инлайн-клавиатура
-keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Выбрать ключ для игр", callback_data="choose_game")],
-    [InlineKeyboardButton(text="Сгенерировать ключ", callback_data="generate_key")]
-])
+  <script>
+    function updatePrice() {
+      let price = parseInt(document.getElementById("account").value);
+      if (document.getElementById("premium").checked) {
+        // Если выбран Telegram Premium, увеличиваем цену на 200₽ для обычного и 200₽ для премиум
+        if (price === 50) {
+          price = 250;
+        } else if (price === 100) {
+          price = 300;
+        }
+      }
+      document.getElementById("price").innerText = price;
+      document.getElementById("payButton").disabled = false;  // Включаем кнопку оплаты
+    }
 
-@dp.message_handler(commands=['start'])
-async def send_welcome(message: types.Message):
-    loading_msg = await message.answer("Загрузка..")
-    await asyncio.sleep(2)
-    await loading_msg.edit_text("Бесплатные ключи от всех дверей в стим тут!", reply_markup=keyboard)
+    function pay() {
+      const price = parseInt(document.getElementById("price").innerText);
 
-@dp.callback_query_handler(lambda c: c.data == 'generate_key')
-async def handle_generate_key(callback_query: types.CallbackQuery):
-    key = generate_key()
-    await bot.send_message(callback_query.from_user.id, f"`{key}`", parse_mode="Markdown")
+      // Псевдокод для Telegram Stars оплаты
+      alert(`Оплата ${price}₽ будет произведена через Telegram Stars!`);
 
-@dp.callback_query_handler(lambda c: c.data == 'choose_game')
-async def handle_choose_game(callback_query: types.CallbackQuery):
-    msg = await bot.send_message(callback_query.from_user.id, "Бегу за командой…⛹️")
-    await asyncio.sleep(2)
-    await msg.edit_text("Напишите точное названия вашей игры, для которой хотите приобрести ключ 🔑")
+      // После успешной оплаты аккаунт будет добавлен на модерацию
+      addAccountToModeration(price);
+    }
 
-    @dp.message_handler()
-    async def get_game_name(message: types.Message):
-        if re.fullmatch(r'[A-Za-z0-9 ]+', message.text):
-            key = generate_key()
-            await message.answer(f"`{key}`", parse_mode="Markdown")
-        else:
-            await message.answer("Похоже, ты решил создать собственное название? Чтож… такого нету в стиме..")
-
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    function addAccountToModeration(price) {
+      // Псевдокод для добавления аккаунта в "Активные аккаунты" с пометкой "На модерации"
+      const accountType = (price === 50) ? "Обычный" : (price === 100) ? "Премиум" : "Премиум с Telegram Premium";
+      
+      // Здесь можно добавить вызов API бота для добавления аккаунта в активные аккаунты на модерации
+      alert(`Аккаунт ${accountType} добавлен в активные аккаунты на модерации!`);
+    }
+  </script>
+</body>
+</html>
