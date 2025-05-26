@@ -3,574 +3,1068 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comic Editor Test</title>
+    <title>Roblox Comic Creator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #7289da;
-            --premium-color: #f47d67;
-            --toolbar-bg: #2f3136;
-            --canvas-bg: #36393f;
-            --text-color: #dcddde;
+            --roblox-white: #f2f2f2;
+            --roblox-light-gray: #e0e0e0;
+            --roblox-gray: #b3b3b3;
+            --roblox-dark-gray: #6b6b6b;
+            --roblox-black: #2d2d2d;
+            --roblox-blue: #00a2ff;
+            --roblox-green: #72cc72;
+            --roblox-red: #ff5c5c;
+            --roblox-orange: #ff9c5c;
+            --roblox-yellow: #ffde59;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #202225;
-            color: var(--text-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--roblox-black);
+            color: var(--roblox-white);
             height: 100vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        
-        .header {
-            background-color: var(--toolbar-bg);
-            padding: 10px 20px;
+
+        /* Навигация */
+        .navbar {
+            background-color: var(--roblox-dark-gray);
+            height: 60px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #202225;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--roblox-blue);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
         }
-        
+
         .logo {
-            font-weight: bold;
-            font-size: 1.2em;
-            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            margin-right: auto;
         }
-        
-        .premium-badge {
-            background-color: var(--premium-color);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            margin-left: 5px;
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
         }
-        
-        .main-content {
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--roblox-blue), var(--roblox-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--roblox-white);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--roblox-blue);
+        }
+
+        .nav-btn .icon {
+            font-size: 20px;
+        }
+
+        /* Основной контент */
+        .main-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        
-        .tool-panel {
-            width: 250px;
-            background-color: var(--toolbar-bg);
-            padding: 15px;
+
+        /* Боковая панель */
+        .sidebar {
+            width: 280px;
+            background-color: var(--roblox-dark-gray);
+            border-right: 1px solid var(--roblox-gray);
+            padding: 20px;
             overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 10;
         }
-        
-        .tool-section {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #40444b;
-            padding-bottom: 15px;
+
+        .sidebar-section {
+            margin-bottom: 25px;
         }
-        
-        .tool-section h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1em;
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--roblox-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .tool-option {
-            margin-bottom: 10px;
+
+        .sidebar-title .icon {
+            font-size: 20px;
         }
-        
-        .tool-option label {
+
+        /* Инструменты */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .tool-btn {
+            background-color: var(--roblox-black);
+            border: 1px solid var(--roblox-gray);
+            color: var(--roblox-white);
+            border-radius: 5px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--roblox-blue);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            border-color: var(--roblox-blue);
+            background-color: rgba(0, 162, 255, 0.1);
+        }
+
+        .tool-btn .icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .tool-btn .label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Настройки инструментов */
+        .tool-options {
+            background-color: var(--roblox-black);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .option-group {
+            margin-bottom: 15px;
+        }
+
+        .option-label {
             display: block;
             margin-bottom: 5px;
-            font-size: 0.9em;
+            font-size: 14px;
+            color: var(--roblox-gray);
         }
-        
-        .canvas-container {
+
+        .option-input {
+            width: 100%;
+            background-color: var(--roblox-dark-gray);
+            border: 1px solid var(--roblox-gray);
+            color: var(--roblox-white);
+            padding: 8px 10px;
+            border-radius: 5px;
+        }
+
+        .option-input:focus {
+            outline: none;
+            border-color: var(--roblox-blue);
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid var(--roblox-white);
+            cursor: pointer;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Основная рабочая область */
+        .workspace {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: var(--canvas-bg);
-        }
-        
-        #comic-canvas {
-            flex: 1;
-            border: 1px solid #40444b;
-            margin: 20px;
-            background-color: white;
-        }
-        
-        .bottom-bar {
-            background-color: var(--toolbar-bg);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        
-        button:hover {
-            opacity: 0.9;
-        }
-        
-        .premium-btn {
-            background-color: var(--premium-color);
-        }
-        
-        select, input {
-            background-color: #40444b;
-            color: var(--text-color);
-            border: 1px solid #202225;
-            padding: 5px;
-            border-radius: 4px;
-            width: 100%;
-        }
-        
-        .color-picker {
-            display: flex;
-            align-items: center;
-        }
-        
-        .color-preview {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #202225;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        
-        .premium-feature {
+            overflow: hidden;
             position: relative;
         }
-        
-        .premium-feature::after {
-            content: "PREMIUM";
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: var(--premium-color);
-            color: white;
-            font-size: 0.7em;
-            padding: 2px 5px;
-            border-radius: 3px;
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--roblox-black);
+            position: relative;
+            overflow: auto;
         }
-        
-        .premium-overlay {
-            position: absolute;
+
+        #comic-canvas {
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin: 20px;
+        }
+
+        /* Панель слоев */
+        .layers-panel {
+            background-color: var(--roblox-dark-gray);
+            border-top: 1px solid var(--roblox-gray);
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background-color: var(--roblox-black);
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .layer-item:hover {
+            background-color: rgba(0, 162, 255, 0.1);
+        }
+
+        .layer-item.active {
+            background-color: rgba(0, 162, 255, 0.3);
+            border-left: 3px solid var(--roblox-blue);
+        }
+
+        .layer-visibility {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .layer-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .layer-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .layer-action-btn {
+            background: none;
+            border: none;
+            color: var(--roblox-gray);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .layer-action-btn:hover {
+            color: var(--roblox-white);
+        }
+
+        /* Панель страниц */
+        .pages-panel {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--roblox-dark-gray);
+            border-top: 1px solid var(--roblox-gray);
+            overflow-x: auto;
+        }
+
+        .page-thumbnail {
+            width: 80px;
+            height: 100px;
+            background-color: white;
+            border: 2px solid var(--roblox-gray);
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--roblox-gray);
+            transition: all 0.2s;
+        }
+
+        .page-thumbnail:hover {
+            border-color: var(--roblox-blue);
+        }
+
+        .page-thumbnail.active {
+            border-color: var(--roblox-blue);
+            box-shadow: 0 0 10px rgba(0, 162, 255, 0.5);
+        }
+
+        .add-page-btn {
+            background-color: var(--roblox-black);
+            color: var(--roblox-blue);
+            border: 2px dashed var(--roblox-blue);
+        }
+
+        .add-page-btn:hover {
+            background-color: rgba(0, 162, 255, 0.1);
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            z-index: 100;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
-        
-        .premium-overlay button {
-            margin-top: 15px;
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
         }
-        
-        .hidden {
-            display: none;
+
+        .modal-content {
+            background-color: var(--roblox-dark-gray);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s;
         }
-        
-        .layers-panel {
-            margin-top: 10px;
+
+        .modal.active .modal-content {
+            transform: translateY(0);
         }
-        
-        .layer-item {
+
+        .modal-header {
+            padding: 15px 20px;
+            background-color: var(--roblox-black);
+            border-bottom: 1px solid var(--roblox-gray);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 5px;
-            background-color: #40444b;
-            margin-bottom: 3px;
-            border-radius: 3px;
         }
-        
-        .layer-visibility {
-            margin-right: 8px;
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--roblox-blue);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--roblox-gray);
+            font-size: 24px;
             cursor: pointer;
         }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(80vh - 100px);
+        }
+
+        /* Окно публикации */
+        .publish-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: var(--roblox-gray);
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: var(--roblox-black);
+            border: 1px solid var(--roblox-gray);
+            color: var(--roblox-white);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--roblox-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0088cc;
+        }
+
+        .btn-secondary {
+            background-color: var(--roblox-dark-gray);
+            color: var(--roblox-white);
+            border: 1px solid var(--roblox-gray);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--roblox-black);
+        }
+
+        /* Окно профиля */
+        .profile-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--roblox-black);
+            border: 3px solid var(--roblox-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            color: var(--roblox-blue);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--roblox-white);
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--roblox-blue);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--roblox-gray);
+        }
+
+        /* Лента рекомендаций */
+        .comics-feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .comic-card {
+            background-color: var(--roblox-black);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .comic-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .comic-thumbnail {
+            width: 100%;
+            height: 180px;
+            background-color: var(--roblox-dark-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--roblox-gray);
+            font-size: 14px;
+        }
+
+        .comic-info {
+            padding: 15px;
+        }
+
+        .comic-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--roblox-white);
+        }
+
+        .comic-author {
+            font-size: 12px;
+            color: var(--roblox-gray);
+            margin-bottom: 10px;
+        }
+
+        .comic-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--roblox-gray);
+        }
+
+        /* Окно обучения */
+        .tutorial-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tutorial-step {
+            background-color: var(--roblox-black);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--roblox-blue);
+        }
+
+        .tutorial-step-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--roblox-blue);
+        }
+
+        .tutorial-step-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--roblox-light-gray);
+        }
+
+        .tutorial-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: absolute;
+                left: -280px;
+                top: 60px;
+                bottom: 0;
+                z-index: 100;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .toggle-sidebar {
+                display: block;
+            }
+        }
+
+        /* Иконки */
+        .icon {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <div class="logo">Comic Creator <span class="premium-badge">TEST MODE</span></div>
-        <div>
-            <button id="save-btn">Сохранить</button>
-            <button id="premium-btn" class="premium-btn">Премиум (тест режим)</button>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://via.placeholder.com/40x40/00a2ff/ffffff?text=RC" alt="Roblox Comics">
+            <span class="logo-text">Roblox Comics</span>
         </div>
-    </div>
-    
-    <div class="main-content">
-        <div class="tool-panel">
-            <div class="tool-section">
-                <h3>Инструменты</h3>
-                <div class="tool-option">
-                    <select id="tool-select">
-                        <option value="select">Выделение</option>
-                        <option value="brush">Кисть</option>
-                        <option value="eraser">Ластик</option>
-                        <option value="text">Текст</option>
-                        <option value="rect">Прямоугольник</option>
-                        <option value="circle">Круг</option>
-                        <option value="line">Линия</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="tool-section">
-                <h3>Кисть</h3>
-                <div class="tool-option">
-                    <label>Толщина</label>
-                    <input type="range" id="brush-width" min="1" max="50" value="5">
-                </div>
-                <div class="tool-option">
-                    <label>Непрозрачность</label>
-                    <input type="range" id="brush-opacity" min="1" max="100" value="100">
-                </div>
-                <div class="tool-option">
-                    <label>Цвет</label>
-                    <div class="color-picker">
-                        <input type="color" id="brush-color" value="#000000">
-                        <div class="color-preview" id="color-preview" style="background-color: #000000;"></div>
+        <div class="nav-links">
+            <button class="nav-btn" id="home-btn">
+                <span class="icon">home</span>
+                Главная
+            </button>
+            <button class="nav-btn active" id="editor-btn">
+                <span class="icon">edit</span>
+                Редактор
+            </button>
+            <button class="nav-btn" id="feed-btn">
+                <span class="icon">explore</span>
+                Лента
+            </button>
+            <button class="nav-btn" id="profile-btn">
+                <span class="icon">person</span>
+                Профиль
+            </button>
+            <button class="nav-btn" id="tutorial-btn">
+                <span class="icon">help</span>
+                Обучение
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контейнер -->
+    <div class="main-container">
+        <!-- Боковая панель инструментов -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <span class="icon">brush</span>
+                    Инструменты
+                </h3>
+                <div class="tools-grid">
+                    <div class="tool-btn active" data-tool="select">
+                        <span class="icon">near_me</span>
+                        <span class="label">Выделение</span>
+                    </div>
+                    <div class="tool-btn" data-tool="brush">
+                        <span class="icon">brush</span>
+                        <span class="label">Кисть</span>
+                    </div>
+                    <div class="tool-btn" data-tool="eraser">
+                        <span class="icon">ink_eraser</span>
+                        <span class="label">Ластик</span>
+                    </div>
+                    <div class="tool-btn" data-tool="text">
+                        <span class="icon">title</span>
+                        <span class="label">Текст</span>
+                    </div>
+                    <div class="tool-btn" data-tool="rect">
+                        <span class="icon">crop_square</span>
+                        <span class="label">Прямоуг.</span>
+                    </div>
+                    <div class="tool-btn" data-tool="circle">
+                        <span class="icon">radio_button_unchecked</span>
+                        <span class="label">Круг</span>
+                    </div>
+                    <div class="tool-btn" data-tool="line">
+                        <span class="icon">show_chart</span>
+                        <span class="label">Линия</span>
+                    </div>
+                    <div class="tool-btn premium-feature" data-tool="polygon">
+                        <span class="icon">hexagon</span>
+                        <span class="label">Фигуры</span>
+                        <span class="premium-badge">PREMIUM</span>
+                    </div>
+                    <div class="tool-btn premium-feature" data-tool="image">
+                        <span class="icon">image</span>
+                        <span class="label">Изображение</span>
+                        <span class="premium-badge">PREMIUM</span>
                     </div>
                 </div>
-                <div class="tool-option premium-feature">
-                    <label>Тип кисти (PREMIUM)</label>
-                    <select id="brush-type" disabled>
-                        <option value="pencil">Карандаш</option>
-                        <option value="marker">Маркер</option>
-                        <option value="spray">Спрей</option>
-                        <option value="watercolor">Акварель</option>
-                    </select>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <span class="icon">palette</span>
+                    Настройки кисти
+                </h3>
+                <div class="tool-options">
+                    <div class="option-group">
+                        <label class="option-label">Толщина</label>
+                        <input type="range" class="option-input" id="brush-width" min="1" max="50" value="5">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Непрозрачность</label>
+                        <input type="range" class="option-input" id="brush-opacity" min="1" max="100" value="100">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Цвет</label>
+                        <div class="color-picker-container">
+                            <input type="color" class="option-input" id="brush-color" value="#000000">
+                            <div class="color-preview" id="color-preview" style="background-color: #000000;"></div>
+                        </div>
+                    </div>
+                    <div class="option-group premium-feature">
+                        <label class="option-label">Тип кисти (PREMIUM)</label>
+                        <select class="option-input" id="brush-type">
+                            <option value="pencil">Карандаш</option>
+                            <option value="marker">Маркер</option>
+                            <option value="spray">Спрей</option>
+                            <option value="watercolor">Акварель</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            
-            <div class="tool-section">
-                <h3>Фигуры</h3>
-                <div class="tool-option">
-                    <label>Заливка</label>
-                    <input type="color" id="shape-fill" value="#ffffff">
-                </div>
-                <div class="tool-option">
-                    <label>Обводка</label>
-                    <input type="color" id="shape-stroke" value="#000000">
-                </div>
-                <div class="tool-option premium-feature">
-                    <label>Сложные фигуры (PREMIUM)</label>
-                    <select id="complex-shapes" disabled>
-                        <option value="star">Звезда</option>
-                        <option value="triangle">Треугольник</option>
-                        <option value="arrow">Стрелка</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="tool-section">
-                <h3>Слои</h3>
-                <div class="tool-option">
-                    <button id="add-layer">Добавить слой</button>
-                    <button id="remove-layer">Удалить слой</button>
-                </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <span class="icon">layers</span>
+                    Слои
+                </h3>
                 <div class="layers-panel" id="layers-panel">
-                    <!-- Layers will be added here dynamically -->
+                    <!-- Слои будут добавляться динамически -->
+                </div>
+                <div class="tool-options">
+                    <button class="btn btn-secondary" id="add-layer-btn">
+                        <span class="icon">add</span> Добавить слой
+                    </button>
+                    <button class="btn btn-secondary" id="remove-layer-btn">
+                        <span class="icon">remove</span> Удалить слой
+                    </button>
                 </div>
             </div>
-            
-            <div class="tool-section premium-feature">
-                <h3>Анимация (PREMIUM)</h3>
-                <div class="tool-option">
-                    <button id="add-frame" disabled>Добавить кадр</button>
-                </div>
-                <div class="tool-option">
-                    <label>FPS</label>
-                    <input type="number" id="animation-fps" min="1" max="30" value="12" disabled>
-                </div>
-                <div class="tool-option">
-                    <button id="play-animation" disabled>Воспроизвести</button>
-                </div>
-            </div>
-            
-            <div class="tool-section premium-feature">
-                <h3>3D Модели (PREMIUM)</h3>
-                <div class="tool-option">
-                    <button id="import-3d" disabled>Импорт модели</button>
+
+            <div class="sidebar-section premium-feature">
+                <h3 class="sidebar-title">
+                    <span class="icon">animation</span>
+                    Анимация (PREMIUM)
+                </h3>
+                <div class="tool-options">
+                    <button class="btn btn-secondary" id="add-frame-btn">
+                        <span class="icon">add</span> Добавить кадр
+                    </button>
+                    <div class="option-group">
+                        <label class="option-label">FPS</label>
+                        <input type="number" class="option-input" id="animation-fps" min="1" max="30" value="12">
+                    </div>
+                    <button class="btn btn-primary" id="play-animation-btn">
+                        <span class="icon">play_arrow</span> Воспроизвести
+                    </button>
                 </div>
             </div>
         </div>
-        
-        <div class="canvas-container">
-            <canvas id="comic-canvas"></canvas>
+
+        <!-- Рабочая область -->
+        <div class="workspace" id="workspace">
+            <div class="canvas-container">
+                <canvas id="comic-canvas" width="800" height="1000"></canvas>
+            </div>
+            <div class="pages-panel" id="pages-panel">
+                <!-- Страницы будут добавляться динамически -->
+            </div>
+            <div class="layers-panel" id="bottom-layers-panel">
+                <!-- Дублирующая панель слоев для мобильных устройств -->
+            </div>
+        </div>
+
+        <!-- Лента рекомендаций (скрыта по умолчанию) -->
+        <div class="comics-feed" id="comics-feed" style="display: none;">
+            <!-- Комиксы будут добавляться динамически -->
+        </div>
+
+        <!-- Профиль (скрыт по умолчанию) -->
+        <div class="profile-container" id="profile-container" style="display: none; padding: 20px;">
+            <!-- Профиль будет загружаться динамически -->
+        </div>
+
+        <!-- Обучение (скрыто по умолчанию) -->
+        <div class="tutorial-container" id="tutorial-container" style="display: none; padding: 20px;">
+            <!-- Обучение будет загружаться динамически -->
         </div>
     </div>
-    
-    <div class="bottom-bar">
-        <div>
-            <button id="add-page">Добавить страницу</button>
-            <span id="page-counter">Страница 1 из 1</span>
-        </div>
-        <div>
-            <button id="publish-btn">Опубликовать</button>
+
+    <!-- Модальное окно публикации -->
+    <div class="modal" id="publish-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Публикация комикса</h3>
+                <button class="modal-close" id="close-publish-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="publish-form" id="publish-form">
+                    <div class="form-group">
+                        <label class="form-label">Название комикса</label>
+                        <input type="text" class="form-input" id="comic-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-input form-textarea" id="comic-description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Теги (через запятую)</label>
+                        <input type="text" class="form-input" id="comic-tags">
+                    </div>
+                    <div class="form-group premium-feature">
+                        <label class="form-label">Продвижение (PREMIUM)</label>
+                        <select class="form-input" id="comic-promotion">
+                            <option value="none">Без продвижения</option>
+                            <option value="basic">Базовое (+50% просмотров) - 5 Stars</option>
+                            <option value="advanced">Продвинутое (+100% просмотров) - 10 Stars</option>
+                            <option value="premium">Премиум (+200% просмотров) - 20 Stars</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-publish">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Опубликовать</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    
-    <div id="premium-overlay" class="premium-overlay hidden">
-        <h2>Премиум функция</h2>
-        <p>Эта функция доступна только для премиум пользователей</p>
-        <button id="unlock-premium">Разблокировать в тестовом режиме</button>
+
+    <!-- Модальное окно премиума -->
+    <div class="modal" id="premium-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Премиум доступ</h3>
+                <button class="modal-close" id="close-premium-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="premium-features">
+                    <h4 style="margin-bottom: 20px; color: var(--roblox-blue);">Откройте все возможности редактора:</h4>
+                    <ul style="list-style-type: none; margin-bottom: 30px;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--roblox-gray); display: flex; align-items: center; gap: 10px;">
+                            <span class="icon" style="color: var(--roblox-green);">check_circle</span>
+                            Неограниченное количество слоев
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--roblox-gray); display: flex; align-items: center; gap: 10px;">
+                            <span class="icon" style="color: var(--roblox-green);">check_circle</span>
+                            Профессиональные инструменты рисования
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--roblox-gray); display: flex; align-items: center; gap: 10px;">
+                            <span class="icon" style="color: var(--roblox-green);">check_circle</span>
+                            Создание анимированных комиксов
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--roblox-gray); display: flex; align-items: center; gap: 10px;">
+                            <span class="icon" style="color: var(--roblox-green);">check_circle</span>
+                            Доступ к библиотеке 3D моделей
+                        </li>
+                        <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+                            <span class="icon" style="color: var(--roblox-green);">check_circle</span>
+                            Приоритетное размещение в ленте
+                        </li>
+                    </ul>
+                    <div style="text-align: center;">
+                        <button class="btn btn-primary pulse" style="padding: 15px 30px; font-size: 18px;" id="activate-premium-btn">
+                            АКТИВИРОВАТЬ ПРЕМИУМ (ТЕСТОВЫЙ РЕЖИМ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Инициализация canvas с Fabric.js
             const canvas = new fabric.Canvas('comic-canvas', {
-                width: 800,
-                height: 1000,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                preserveObjectStacking: true
             });
-            
-            // Состояние редактора
+
+            // Состояние приложения
             const state = {
                 currentTool: 'select',
                 brushWidth: 5,
                 brushOpacity: 1,
                 brushColor: '#000000',
-                isPremium: false,
+                isPremium: true, // В тестовом режиме премиум активен
                 currentPage: 1,
-                totalPages: 1,
-                layers: ['Layer 1'],
-                activeLayer: 0
+                pages: [{
+                    id: 1,
+                    name: 'Страница 1',
+                    canvasData: null
+                }],
+                layers: ['Слой 1'],
+                activeLayer: 0,
+                currentUser: {
+                    id: 1,
+                    name: 'RobloxArtist',
+                    avatar: 'R',
+                    comicsCount: 0,
+                    likesCount: 0,
+                    followers: 0,
+                    robuxBalance: 1000,
+                    starsBalance: 50
+                },
+                comicsFeed: []
             };
-            
-            // Элементы интерфейса
+
+            // Инициализация элементов интерфейса
             const elements = {
-                toolSelect: document.getElementById('tool-select'),
+                // Кнопки навигации
+                homeBtn: document.getElementById('home-btn'),
+                editorBtn: document.getElementById('editor-btn'),
+                feedBtn: document.getElementById('feed-btn'),
+                profileBtn: document.getElementById('profile-btn'),
+                tutorialBtn: document.getElementById('tutorial-btn'),
+                
+                // Элементы редактора
+                toolButtons: document.querySelectorAll('.tool-btn'),
                 brushWidth: document.getElementById('brush-width'),
                 brushOpacity: document.getElementById('brush-opacity'),
                 brushColor: document.getElementById('brush-color'),
                 colorPreview: document.getElementById('color-preview'),
-                shapeFill: document.getElementById('shape-fill'),
-                shapeStroke: document.getElementById('shape-stroke'),
-                addLayerBtn: document.getElementById('add-layer'),
-                removeLayerBtn: document.getElementById('remove-layer'),
+                addLayerBtn: document.getElementById('add-layer-btn'),
+                removeLayerBtn: document.getElementById('remove-layer-btn'),
                 layersPanel: document.getElementById('layers-panel'),
-                premiumOverlay: document.getElementById('premium-overlay'),
-                unlockPremiumBtn: document.getElementById('unlock-premium'),
-                premiumBtn: document.getElementById('premium-btn'),
-                addPageBtn: document.getElementById('add-page'),
-                pageCounter: document.getElementById('page-counter'),
-                publishBtn: document.getElementById('publish-btn'),
-                saveBtn: document.getElementById('save-btn')
+                pagesPanel: document.getElementById('pages-panel'),
+                
+                // Модальные окна
+                publishModal: document.getElementById('publish-modal'),
+                closePublishModal: document.getElementById('close-publish-modal'),
+                cancelPublish: document.getElementById('cancel-publish'),
+                publishForm: document.getElementById('publish-form'),
+                
+                premiumModal: document.getElementById('premium-modal'),
+                closePremiumModal: document.getElementById('close-premium-modal'),
+                activatePremiumBtn: document.getElementById('activate-premium-btn'),
+                
+                // Основные области
+                workspace: document.getElementById('workspace'),
+                comicsFeed: document.getElementById('comics-feed'),
+                profileContainer: document.getElementById('profile-container'),
+                tutorialContainer: document.getElementById('tutorial-container')
             };
-            
+
             // Инициализация кисти
             canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
             canvas.freeDrawingBrush.width = state.brushWidth;
             canvas.freeDrawingBrush.color = state.brushColor;
-            
+            canvas.freeDrawingBrush.opacity = state.brushOpacity;
+
             // Обновление интерфейса
             function updateUI() {
                 // Обновление предпросмотра цвета
                 elements.colorPreview.style.backgroundColor = state.brushColor;
                 
-                // Обновление счетчика страниц
-                elements.pageCounter.textContent = `Страница ${state.currentPage} из ${state.totalPages}`;
+                // Обновление активного инструмента
+                elements.toolButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.tool === state.currentTool) {
+                        btn.classList.add('active');
+                    }
+                });
                 
                 // Обновление списка слоев
                 elements.layersPanel.innerHTML = '';
                 state.layers.forEach((layer, index) => {
                     const layerItem = document.createElement('div');
-                    layerItem.className = 'layer-item';
+                    layerItem.className = `layer-item ${index === state.activeLayer ? 'active' : ''}`;
                     layerItem.innerHTML = `
-                        <span class="layer-visibility">👁️</span>
-                        <span>${layer}</span>
+                        <span class="layer-visibility icon">visibility</span>
+                        <span class="layer-name">${layer}</span>
+                        <div class="layer-actions">
+                            <button class="layer-action-btn icon" data-action="up">arrow_upward</button>
+                            <button class="layer-action-btn icon" data-action="down">arrow_downward</button>
+                        </div>
                     `;
-                    if (index === state.activeLayer) {
-                        layerItem.style.backgroundColor = '#7289da';
-                    }
                     layerItem.addEventListener('click', () => {
                         state.activeLayer = index;
                         updateUI();
                     });
                     elements.layersPanel.appendChild(layerItem);
                 });
-            }
-            
-            // Обработчики событий
-            elements.toolSelect.addEventListener('change', function() {
-                state.currentTool = this.value;
-                canvas.isDrawingMode = false;
                 
-                switch(state.currentTool) {
-                    case 'brush':
-                        canvas.isDrawingMode = true;
-                        break;
-                    case 'eraser':
-                        // В реальном приложении здесь была бы реализация ластика
-                        alert("Ластик работает в тестовом режиме");
-                        break;
-                    case 'text':
-                        const text = new fabric.IText('Введите текст', {
-                            left: 100,
-                            top: 100,
-                            fontFamily: 'Arial',
-                            fill: state.brushColor
-                        });
-                        canvas.add(text);
-                        canvas.setActiveObject(text);
-                        break;
-                    case 'rect':
-                        const rect = new fabric.Rect({
-                            left: 100,
-                            top: 100,
-                            width: 100,
-                            height: 100,
-                            fill: elements.shapeFill.value,
-                            stroke: elements.shapeStroke.value,
-                            strokeWidth: 2
-                        });
-                        canvas.add(rect);
-                        break;
-                    case 'circle':
-                        const circle = new fabric.Circle({
-                            left: 100,
-                            top: 100,
-                            radius: 50,
-                            fill: elements.shapeFill.value,
-                            stroke: elements.shapeStroke.value,
-                            strokeWidth: 2
-                        });
-                        canvas.add(circle);
-                        break;
-                    case 'line':
-                        const line = new fabric.Line([50, 50, 200, 50], {
-                            stroke: elements.shapeStroke.value,
-                            strokeWidth: 2
-                        });
-                        canvas.add(line);
-                        break;
-                }
-            });
-            
-            elements.brushWidth.addEventListener('input', function() {
-                state.brushWidth = parseInt(this.value);
-                canvas.freeDrawingBrush.width = state.brushWidth;
-            });
-            
-            elements.brushOpacity.addEventListener('input', function() {
-                state.brushOpacity = parseInt(this.value) / 100;
-                canvas.freeDrawingBrush.opacity = state.brushOpacity;
-            });
-            
-            elements.brushColor.addEventListener('input', function() {
-                state.brushColor = this.value;
-                canvas.freeDrawingBrush.color = state.brushColor;
-                updateUI();
-            });
-            
-            elements.addLayerBtn.addEventListener('click', function() {
-                if (state.layers.length >= 10 && !state.isPremium) {
-                    showPremiumOverlay();
-                    return;
-                }
-                state.layers.push(`Layer ${state.layers.length + 1}`);
-                updateUI();
-            });
-            
-            elements.removeLayerBtn.addEventListener('click', function() {
-                if (state.layers.length > 1) {
-                    state.layers.pop();
-                    if (state.activeLayer >= state.layers.length) {
-                        state.activeLayer = state.layers.length - 1;
-                    }
-                    updateUI();
-                }
-            });
-            
-            elements.unlockPremiumBtn.addEventListener('click', function() {
-                state.isPremium = true;
-                document.querySelectorAll('.premium-feature select, .premium-feature button').forEach(el => {
-                    el.disabled = false;
+                // Обновление списка страниц
+                elements.pagesPanel.innerHTML = '';
+                state.pages.forEach(page => {
+                    const pageThumbnail = document.createElement('div');
+                    pageThumbnail.className = `page-thumbnail ${page.id === state.currentPage ? 'active' : ''}`;
+                    pageThumbnail.textContent = page.id;
+                    pageThumbnail.addEventListener('click', () => {
+                        state.currentPage = page.id;
+                        loadPage(page.id);
+                        updateUI();
+                    });
+                    elements.pagesPanel.appendChild(pageThumbnail);
                 });
-                elements.premiumOverlay.classList.add('hidden');
-            });
-            
-            elements.premiumBtn.addEventListener('click', function() {
-                state.isPremium = !state.isPremium;
-                this.textContent = state.isPremium ? "Премиум (активно)" : "Премиум (тест режим)";
                 
-                document.querySelectorAll('.premium-feature select, .premium-feature button').forEach(el => {
-                    el.disabled = !state.isPremium;
-                });
-            });
-            
-            elements.addPageBtn.addEventListener('click', function() {
-                if (state.totalPages >= 3 && !state.isPremium) {
-                    showPremiumOverlay();
-                    return;
-                }
-                state.totalPages++;
-                state.currentPage = state.totalPages;
-                updateUI();
-                alert(`Добавлена страница ${state.totalPages}. В реальном приложении здесь было бы переключение между страницами.`);
-            });
-            
-            elements.publishBtn.addEventListener('click', function() {
-                alert("Комикс опубликован! В реальном приложении он появился бы в ленте рекомендаций.");
-            });
-            
-            elements.saveBtn.addEventListener('click', function() {
-                const link = document.createElement('a');
-                link.download = 'comic-page.png';
-                link.href = canvas.toDataURL({
-                    format: 'png',
-                    quality: 1
-                });
-                link.click();
-            });
-            
-            function showPremiumOverlay() {
-                elements.premiumOverlay.classList.remove('hidden');
-            }
-            
-            // Инициализация UI
-            updateUI();
-            
-            // Добавление тестовых элементов на холст
-            const text = new fabric.IText('Добро пожаловать в Comic Creator!', {
-                left: 50,
-                top: 50,
-                fontFamily: 'Arial',
-                fontSize: 24,
-                fill: '#7289da'
-            });
-            canvas.add(text);
-            
-            const rect = new fabric.Rect({
-                left: 50,
-                top: 100,
-                width: 200,
-                height: 100,
-                fill: '#7289da',
-                opacity: 0.5
-            });
-            canvas.add(rect);
-            
-            // Сообщение в консоль
-            console.log('Редактор комиксов инициализирован. Включен тестовый режим с премиум функциями.');
-        });
-    </script>
-</body>
-</html>
+                // Добавление кнопки новой страницы
+                const addPageBtn = document.createElement('div');
+                addPageBtn.className = 'page-thumbnail add-page-btn';
+                addPageBtn.innerHTML = '<span class="icon">add</span>';
+                addPageBtn.addEventListener('click', addNewPage);
+                elements
